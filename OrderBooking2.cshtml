@@ -1,0 +1,527 @@
+﻿@using Microsoft.Extensions.Configuration
+@{
+    var configuration = Context.RequestServices.GetService(typeof(IConfiguration)) as IConfiguration;
+    var apiBaseUrl = configuration["ApiBaseUrl"];
+    var ITMSMastersApi = configuration["ITMSMastersApi"];
+    var lang = "Arabic";
+}
+<style>
+
+
+
+    .stepper-horizontal {
+        display: flex;
+        justify-content: space-between; /* Ensures even spacing */
+        align-items: center;
+        position: relative;
+        padding: 20px 0; /* Add spacing around the stepper */
+    }
+
+        .stepper-horizontal::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: #e0e0e0; /* Default line color */
+            z-index: 0;
+            transform: translateY(-50%);
+            transition: background-color 0.3s ease; /* Smooth transition for color change */
+        }
+
+    .stepper-horizontal {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        padding: 20px 0; /* Adjust spacing around the stepper */
+        width: 60%; /* Adjust this value to reduce the width of the stepper */
+        margin: 0 auto; /* Centers the stepper horizontally */
+    }
+
+
+
+        .stepper-horizontal.stepper-default::before {
+            background-color: #e0e0e0; /* Default line color */
+        }
+
+        .stepper-horizontal.stepper-active::before {
+            background-color: #007bff; /* Active color */
+        }
+
+        .stepper-horizontal.stepper-checked::before {
+            background-color: #28a745; /* Completed color */
+        }
+
+
+    .step {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        cursor: pointer;
+        z-index: 1; /* Ensure steps appear above the line */
+        /*background: #fff; Add background to avoid overlap issues */
+        background: #f5f5f9 !important;
+    }
+
+        .step.active {
+            opacity: 1;
+        }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #e0e0e0; /* Default step color */
+        color: #000;
+        font-size: 16px;
+        font-weight: bold;
+        z-index: 1; /* Ensure step number appears above the line */
+    }
+
+    .step.editing .step-number {
+        background-color: #007bff; /* Highlighted color */
+        color: #fff;
+    }
+
+    .step.checked .step-number {
+        background-color: #28a745; /* Completed color */
+        color: #fff;
+    }
+
+    .step .step-number {
+        background-color: #e0e0e0; /* Default color */
+        color: #000;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+
+
+</style>
+
+<div class="container-fluid Container">
+   <div class="stepper">
+    <div class="stepper-horizontal">
+        <div class="step">
+            <div class="step-number">&#10003;</div> <!-- Tick symbol -->
+            <div class="step-label">Booking & Order</div>
+        </div>
+        <div class="step">
+            <div class="step-number">&#10007;</div> <!-- X symbol -->
+            <div class="step-label">Extra Info</div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+    <div id="section-1" class="row  gap-4  section">
+        <div class="row gap-4 flex-xxl-nowrap    ">
+            @*  this is Booking Header *@
+            <div class="col-12 col-lg-12  col-xxl-6  p-4 common-radius card">
+                <p class=" common-header common-header-sm">Booking Header</p>
+                @*   this is row 1 *@
+                <div class="row">
+                    <div class="itms-input-group itms-w-xxxl-34 itms-w-xxl-24 itms-w-xl-48 itms-w-md-60 itms-w-sm-60 gap-2">
+                        <div class="ITMSInput itms-input-group-childinput " data-page="FileTypeMaster" data-id="ddlFileType" data-type="text" data-class="" data-placeholder=" File Type" data-mandatory="true" data-autocomplete="true">
+                        </div>
+                        <div class="">
+                            <div id="addRegionMaster" class="btn open-master-page text-nowrap btn-primary itms-primarybtn btn-lg">+</div>
+                        </div>
+                    </div>
+                   @*  <div class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="ITMSInput" data-id="ddlFileType" data-type="text" data-class="" data-placeholder=" File Type" data-mandatory="true" data-autocomplete="true">
+                        </div>
+                    </div> *@
+                    <div class="itms-w-xxxl-34 itms-w-xxl-24 itms-w-xl-48 itms-w-md-60 itms-w-sm-60">
+                        <div class="ITMSInput" data-id="txtOrderNo" data-class="allowAlphanumeric" data-placeholder="Order/Booking/BL No" data-type="text" data-mandatory="true" data-maxlength="100"></div>
+                    </div>
+                    <div class="itms-w-xxxl-28 itms-w-xxl-24 itms-w-xl-48 itms-w-md-60 itms-w-sm-60">
+                        <div class="ITMSInput" data-id="txtOrderReceived" data-class="allowAlphanumeric" data-placeholder="Order Received" data-type="date" data-mandatory="true" data-maxlength="100"></div>
+                    </div>
+                    
+                </div>
+                @*   this is row 2 *@
+                <div class="row">
+                    <div class="itms-input-group itms-w-xxxl-70 itms-w-xxl-48 itms-w-xl-48 itms-w-md-60 itms-w-sm-60 gap-2">
+                        <div class="ITMSInput itms-input-group-childinput " data-page="OperationMaster" data-id="ddlOperationCode" data-type="text" data-class="" data-placeholder="Select Type" data-mandatory="true" data-autocomplete="true">
+                        </div>
+                        <div class="">
+                            <div id="addRegionMaster" class="btn open-master-page text-nowrap btn-primary itms-primarybtn btn-lg">+</div>
+                        </div>
+                    </div>
+                    @* <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div class="ITMSInput" data-id="ddlOperationCode" data-type="text" data-class="" data-placeholder="Select Operation Code" data-mandatory="true" data-autocomplete="true">
+                        </div>
+                    </div> *@
+                    <div class="itms-w-xxxl-26 itms-w-xxl-24 itms-w-xl-48 itms-w-md-60 itms-w-sm-60">
+                        <div class="ITMSInput" data-id="ddlOperationPoint" data-type="text" data-class="" data-placeholder=" Operation Point" data-mandatory="true" data-autocomplete="true">
+                        </div>
+                    </div>
+                    <div class="itms-w-xxxl-34 itms-w-xxl-24 itms-w-xl-48 itms-w-md-60 itms-w-sm-60">
+                        <div class="ITMSInput" data-id="ddlStartOperation" data-type="text" data-class="" data-placeholder="start" data-mandatory="true" data-autocomplete="true">
+                        </div>
+                    </div>
+
+                    <div class="itms-w-xxxl-34 itms-w-xxl-24 itms-w-xl-48 itms-w-md-60 itms-w-sm-60">
+                        <div class="ITMSInput" data-id="ddlEndOperation" data-type="text" data-class="" data-placeholder="end" data-mandatory="true" data-autocomplete="true">
+                        </div>
+                    </div>
+                    <div class="itms-w-xxxl-28 itms-w-xxl-24 itms-w-xl-48 itms-w-md-60 itms-w-sm-60">
+                        <div class="ITMSInput" data-id="txtFileNo" data-class="allowAlphanumeric" data-placeholder="File NO" data-type="text" data-mandatory="true" data-maxlength="100"></div>
+                    </div>
+                    <div class="itms-w-xxxl-34 itms-w-xxl-48 itms-w-xl-48 itms-w-md-60 itms-w-sm-60">
+                        <div class="ITMSInput" data-id="ddlCustomerName" data-type="text" data-class="" data-placeholder="Select Customer Name" data-mandatory="true" data-autocomplete="true">
+                        </div>
+                    </div>
+                    <div class="itms-w-xxxl-34 itms-w-xxl-24 itms-w-xl-48 itms-w-md-60 itms-w-sm-60">
+                        <div class="ITMSInput" data-id="ddlBookingType" data-type="text" data-class="" data-placeholder=" Booking Type" data-mandatory="true" data-autocomplete="true">
+                        </div>
+                    </div>
+                    <div class="itms-w-xxxl-28 itms-w-xxl-48 itms-w-xl-48 itms-w-md-60 itms-w-sm-60">
+                        <div class="ITMSInput" data-id="txtRemarks" data-class="allowAlphanumeric" data-placeholder="Remarks" data-type="text" data-maxlength="100"></div>
+                    </div>
+                    
+            </div>
+            </div>
+          
+            <div class="col-12 col-lg-6 col-xxl-6 p-4 common-radius card">
+                <p class="common-header">Order Info</p>
+              
+                <div class="row">
+                    <div class="col-sm-12 col-md-6 col-lg-6">
+                        <div class="ITMSInput" data-id="ddlOrderInfoShipmentType" data-type="text" data-class="" data-placeholder="Select Shipment Type" data-mandatory="true" data-autocomplete="true">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-6 DIV_ORDER_NO_REQUIRED">
+                        <div class="ITMSInput" data-id="txtOrderInfoOrderNo" data-class="allowAlphanumeric" data-placeholder="Order No" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    <div class="col-sm-8 col-md-4 col-lg-3">
+                        <div class="ITMSInput" data-id="txtOrderInfoWeight" data-class="allowAlphanumeric" data-placeholder="Weight(Kg)" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    <div class="col-sm-8 col-md-4 col-lg-3">
+                        <div class="ITMSInput" data-id="txtOrderInfoVolume" data-class="allowAlphanumeric" data-placeholder="Volume" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-3 ">
+                        <div class="ITMSInput" data-id="txtOrderInfoTruckRequested" data-class="allowAlphanumeric" data-placeholder="Truck Req" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-3 ">
+                        <div class="ITMSInput" data-id="ddlOrderInfoLoadingPort" data-class="allowAlphanumeric" data-placeholder="Loading Place" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                </div>
+               
+               
+               
+                <div class="row">
+                    <div class="col-sm-12 col-md-8 p-2 rounded-3 card orderInfoContainerType">
+                        <div id="orderInfoContainer" class="order-info-container mb-2" style="overflow:auto;">
+                            <div class="row order-row g-1">
+                                <div class="col-sm-12 col-lg-4">
+                                    <input type="number" class="form-control txtCTRsize " placeholder=" QTY " min="1" max="50">
+                                </div>
+                                <div class="col-sm-12 col-lg-4">
+                                    <div>
+                                        <input type="text" class="form-control txtCTRtype" placeholder="CTR Type" min="1" max="50">
+                                    </div>
+                                    
+                                </div>
+                                <div class="col-sm-12 col-lg-4 d-flex justify-content-center align-items-center">
+                                    <!-- Flex container to hold buttons in one row -->
+                                    <div class="d-flex justify-content-between w-100">
+                                        <!-- Delete Button -->
+                                        <div class="btn btn-secondary btn-lg delete-btn">
+                                            <i class="fa fa-trash"></i>
+                                        </div> &nbsp; &nbsp;
+                                        <!-- Select Button -->
+                                        <div class="btn btn-primary itms-primarybtn view-container-details btn-lg"> Select </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                           
+                            <!-- Initially, only one row will be present -->
+                        </div>
+
+                       
+                        <div class="row">
+                            <div class="col">
+                                <button id="select-btn" class="btn btn-lg  common-text-color text-decoration-underline">+ Add Row</button>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="col">
+                        <div class="">
+                            <div class="ITMSInput" data-id="ddlOrderInfoUnloadingPort" data-type="text" data-class="" data-placeholder="Un-Loading Place" data-mandatory="false" data-autocomplete="true">
+                            </div>
+
+                        </div>
+                        <div class=" DIV_REQ_LOAD_DATE_ENABLE">
+                            <div class="ITMSInput" data-id="txtOrderInfoLoadingDate" data-class="allowAlphanumeric" data-placeholder="Loading Date" data-type="date" data-mandatory="false" data-maxlength="100"></div>
+                        </div>
+                        <div class=" DIV_REQ_DELI_DATE_ENABLE">
+                            <div class="ITMSInput" data-id="txtOrderInfoDeliveryDate" data-class="allowAlphanumeric" data-placeholder="Delivery Date" data-type="date" data-mandatory="false" data-maxlength="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+      
+    </div>
+   
+    <div id="section-2" class="row gap-4 section">
+        <div class="card common-radius mt-3" hidden>
+            <div class="row exsistData p-3">
+                <div class="col-lg-2 col-md-4 col-sm-6 border-end border-3">
+                    <h5 class="exsistDataHeader">File Type</h5>
+                    <p></p>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 border-end border-3">
+                    <h5 class="exsistDataHeader">Order No</h5>
+                    <p></p>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 border-end border-3">
+                    <h5 class="exsistDataHeader">File No</h5>
+                    <p></p>
+                </div>
+                <div class="col-lg-1 col-md-4 col-sm-6 border-end border-3">
+                    <h5 class="exsistDataHeader">Activity</h5>
+                    <p></p>
+                </div>
+                <div class="col-lg-1 col-md-4 col-sm-6 border-end border-3">
+                    <h5 class="exsistDataHeader">Booking Type</h5>
+                    <p></p>
+                </div>
+                <div class="col-lg-1 col-md-4 col-sm-6 border-end border-3">
+                    <h5 class="exsistDataHeader">Order Received Date</h5>
+                    <p></p>
+                </div>
+                <div class="col-lg-1 col-md-4 col-sm-6 border-end border-3">
+                    <h5 class="exsistDataHeader">Loading Place</h5>
+                    <p></p>
+                </div>
+                <div class="col-lg-1 col-md-4 col-sm-6 border-end border-3">
+                    <h5 class="exsistDataHeader">Unloading Place</h5>
+                    <p></p>
+                </div>
+                <div class="col-lg-1 col-md-4 col-sm-6">
+                    <h5 class="exsistDataHeader">Status</h5>
+                    <button id="activebtn" class="btn btn-primary itms-primarybtn">Active</button>
+                </div>
+            </div>
+        </div>
+
+
+
+       
+        <div class="row gap-4 flex-xxl-nowrap ">
+            @*  this is Voyage Information *@
+            <div class="col-md-12 col-lg-12  col-xxl-6  p-4 common-radius  card  ">
+                <p class="common-header common-header-sm">Voyage Information</p>
+                @*  this isVoyage Information row 1 *@
+                <div class="row ">
+                    <div class="col-sm-12 col-md-6 col-lg-4" data-name="Req Load Date Enable">
+                        <div class="ITMSInput" data-id="ddlVoyageInfoVoyageCode" data-type="text" data-class="" data-placeholder="Select Voyage Code" data-mandatory="false" data-autocomplete="true">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4" data-name="Volume Enable">
+                        <div class="ITMSInput" data-id="ddlVoyageInfoVesselName" data-class="allowAlphanumeric" data-placeholder="Select Vessel Name" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4" data-name="Quantity Enable">
+                        <div class="ITMSInput" data-id="ddlVoyageInfoLine" data-class="allowAlphanumeric" data-placeholder="Select Line" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4" data-name="Quantity Enable">
+                        <div class="ITMSInput" data-id="txtVoyageInfoETA" data-class="allowAlphanumeric" data-placeholder="ETA" data-type="date" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4" data-name="Quantity Enable">
+                        <div class="ITMSInput" data-id="ddlVoyageInfoLodPort" data-class="allowAlphanumeric" data-placeholder="Select LodPort" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4" data-name="Quantity Enable">
+                        <div class="ITMSInput" data-id="ddlVoyageInfoDisPort" data-class="allowAlphanumeric" data-placeholder="Select DisPort" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                </div>
+              
+
+            </div>
+            @*  this is Delivery Information *@
+            <div class="col-md-12 col-lg-12  col-xxl-6 flex-xxl-nowrap p-4  common-radius card">
+                <p class="common-header common-header-sm">Delivery Information</p>
+                @*  this is Delivery Information row 1 *@
+                <div class="row">
+                    <div class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="ITMSInput" data-id="ddlDeliveryAddressCode" data-class="" data-placeholder="Select Name" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="ITMSInput" data-id="txtDeliveryAddressContactName" data-class="allowAlphanumeric" data-placeholder="Contact Name" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="ITMSInput" data-id="txtDeliveryAddressTel" data-class="allowAlphanumeric" data-placeholder="Telephone No" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                   @*  <div class="col-sm-12 col-md-6 col-lg-10">
+                        <div class="ITMSInput" data-id="" data-type="text" data-class="" data-placeholder=" Name" data-mandatory="false" data-autocomplete="true">
+                        </div>
+
+                    </div> *@
+                    <div class="col-sm-12 col-md-12 col-lg-6">
+                        <div class="ITMSInput" data-id="txtDeliveryAddressAddress1" data-class="allowAlphanumeric" data-placeholder="Address Line 1" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    <div class="col-sm-12 col-md-12 col-lg-6">
+                        <div class="ITMSInput" data-id="txtDeliveryAddressAddress2" data-class="allowAlphanumeric" data-placeholder="Address Line 2" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    @*  this is Delivery Information row 2 *@
+                    <div class="row">
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row gap-4 flex-xxl-nowrap ">
+            @*  this is Product Information *@
+            <div class="col-md-12 col-lg-12  col-xxl-6  p-4 common-radius  card">
+                <p class="common-header common-header-sm">Product Information</p>
+                @*  this is Product Information row 1 *@
+                <div class="row ">
+                    <div class="col-sm-12 col-md-6 col-lg-4" data-name="Req Load Date Enable">
+                        <div class="ITMSInput" data-id="ddlProductInfoCode" data-type="text" data-class="" data-placeholder="Select Code" data-mandatory="false" data-autocomplete="true">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4" data-name="Volume Enable">
+                        <div class="ITMSInput" data-id="txtProductInfoDescription" data-class="text" data-placeholder="Description" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4" data-name="Volume Enable">
+                        <div class="ITMSInput" data-id="txtProductInfoGrade" data-class="cc" data-placeholder="Grade" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                </div>
+              
+
+            </div>
+            @*  this is Extra Information *@
+            <div class="col-md-12 col-lg-12  col-xxl-6  p-4 common-radius  card  ">
+                <p class="common-header common-header-sm">Extra Information</p>
+                @*  this is Extro INformation row 1 *@  
+                <div class="row ">
+                    <div class="col-sm-12 col-md-6 col-lg-6" data-name="Req Load Date Enable">
+                        <div class="ITMSInput" data-id="ddlExtraInfoLinesTerminal" data-type="text" data-class="" data-placeholder="Select Line Terminal" data-mandatory="false" data-autocomplete="true">
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-3" data-name="Volume Enable">
+                        <div class="ITMSInput" data-id="txtExtraInfoCroNo" data-class="text" data-placeholder="CRO" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-3" data-name="Volume Enable">
+                        <div class="ITMSInput" data-id="txtExtraInfoExpiry" data-class="text" data-placeholder="Expiry Date" data-type="date" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                   @*  <div class="col-sm-12 col-md-6 col-lg-2" data-name="Volume Enable">
+                        <div class="ITMSInput" data-id="ddlExtraInfoOrderStatus" data-class="text" data-placeholder="Order Status" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                   *@
+                </div>
+                <div class="row">
+                    <div class="col-sm-12 col-md-6 col-lg-6" data-name="Volume Enable">
+                        <div class="ITMSInput" data-id="ddlExtraInfoShoppingLine" data-class="text" data-placeholder="Select Shipping Line" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-6" data-name="Volume Enable">
+                        <div class="ITMSInput" data-id="txtRemarks" data-class="text" data-placeholder="Remarks" data-type="text" data-mandatory="false" data-maxlength="100"></div>
+                    </div>
+
+                </div>
+
+
+            </div>
+        </div>
+       
+       
+    </div>
+
+
+    <div class="d-flex pagination-buttons justify-content-between mt-3">
+        <div>
+            <button id="prev-page-btn" class="btn  itms-primarybtn-outline" disabled>Previous</button>
+        </div>
+
+        <div class="d-flex gap-4">
+            <button id="next-btn" class="btn   
+btn-primary itms-primarybtn
+">Next</button>
+            <button id="saveBtn" class="btn  btn-warning">Save Booking</button>
+           
+        </div>
+    </div>
+    <!-- Modal Structure -->
+    <div id="modalContainer" class="modal fade" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Container Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Multiline Text Area -->
+                    <div class="mb-3">
+                        <label for="txtContainerList" class="form-label">Enter Container Numbers (comma or slash separated):</label>
+                        <textarea id="txtContainerList" class="form-control" rows="4"></textarea>
+                    </div>
+                    <!-- Scrollable Table -->
+                    <div id="scrollableTableContainer">
+                        <table class="table table-bordered">
+                            <thead class="table-header">
+                                <tr>
+                                    <th>Container No</th>
+                                    <th>Size</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="containerTableBody">
+                                <!-- Rows will be added dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="containerDetailsClose" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary " id="containerDetailsSave" data-bs-dismiss="modal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+
+
+@section Scripts {
+    <script src="~/js/booking/orderbooking.js"></script>
+
+    <script src="~/js/filter.js"></script>
+    <script>
+
+        var apiBaseUrl = '@apiBaseUrl';
+        var ITMSMastersApi = '@ITMSMastersApi';
+        // var jwtToken = getCookie('jwtToken');
+        // var isLoggedIn = getCookie('isLoggedIn');
+        var isLoggedIn = getCookie('isLoggedIn');
+        var jwtToken = getCookie('jwtToken');
+        var gblProjectId = getCookie('projectId');
+
+    </script>
+
+}
