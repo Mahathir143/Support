@@ -1,0 +1,428 @@
+@using Microsoft.Extensions.Configuration
+
+@{
+    var configuration = Context.RequestServices.GetService(typeof(IConfiguration)) as IConfiguration;
+    var apiBaseUrl = configuration["ApiBaseUrl"];
+    var ITMSMastersApi = configuration["ITMSMastersApi"];
+    var lang = "Arabic";
+}
+<style>
+    #tableBody .form-control {
+        width: auto !important;
+    }
+
+    .selected-row {
+        --bs-table-bg-state: bisque;
+    }
+
+    .swal2-confirm-custom {
+        background-color: #1c5739 !important;
+        color: #fff !important;
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    input.form-control.analysisfield-grey {
+        background-color: #EFEFEF !important;
+        border: 1px solid #0F736100 !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+    }
+
+    input.form-control.analysisfield-red {
+        background: #FFD7D7;
+        border: 1px solid #F93333;
+    }
+
+    input.form-control.analysisfield-green {
+        background: #DCFCF6;
+        border: 1px solid #0F7361;
+    }
+
+    #modelUpload {
+        content: "\f603";
+        color: #0F7361;
+        font-weight: 600 !important;
+        background-color: white;
+        padding: 13px;
+        border-radius: 12px;
+    }
+
+    #uploadFileModalLabel {
+        font-size: 1.5rem !important;
+    }
+
+    .analysis-field-container {
+        margin-bottom: 0.75rem;
+    }
+
+    .analysis-input-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .analysis-input-group .form-control:first-child {
+            flex: 2;
+        }
+
+        .analysis-input-group .form-control:last-child {
+            flex: 1;
+            min-width: 80px;
+        }
+
+    /* Tab 2 Tables styling for single row layout */
+    .results-table-container {
+        min-height: 350px;
+    }
+
+        .results-table-container .table-responsive {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .results-table-container .card-header {
+            padding: 0.75rem;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .results-table-container .card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+</style>
+
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <!-- Action Buttons Row -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="d-flex justify-content-end gap-2">
+                    <button id="btnDownloadTemplate" class="btn btn-secondary" title="Download">
+                        <i class="bi bi-download"></i>
+                    </button>
+                    <button id="btnUpload" class="btn btn-secondary" title="Upload">
+                        <i class="bi bi-upload"></i>
+                    </button>
+                    <button id="btnAddRow" class="btn btn-warning">Add Row</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Row -->
+
+        <div class="row row mb-4 common-radius">
+            <!-- Navigation Tabs -->
+            <nav>
+                <div class="nav nav-tabs custom-nav" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="btnTabNominate" data-bs-toggle="tab" data-bs-target="#tabNominate" type="button" role="tab" aria-controls="tabNominate" aria-selected="true">Nominate</button>
+                    <button class="nav-link" id="btnTabResult" data-bs-toggle="tab" data-bs-target="#tabResults" type="button" role="tab" aria-controls="tabResults" aria-selected="false">Results</button>
+                </div>
+            </nav>
+
+            <!-- Tab Content -->
+            <div class="tab-content p-3 card" id="divTabs">
+                <!-- Nominate Tab -->
+                <div class="tab-pane fade show active" id="tabNominate" role="tabpanel" aria-labelledby="btnTabNominate">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="table-responsive" style="height: 350px; margin-bottom: 10px;">
+                                <table class="table table-bordered freeze_column" id="tblMultiNaminate">
+                                    <thead>
+                                        <tr>
+                                            <th>Sl No</th>
+                                            <th>Containers</th>
+                                            <th>Size</th>
+                                            <th>Type</th>
+                                            <th>Height</th>
+                                            <th>Unit</th>
+                                            <th>Line</th>
+                                            <th>Agent</th>
+                                            <th>Vessel Name</th>
+                                            <th>Voyage</th>
+                                            <th>ETA</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tBodyMultiNaminate">
+                                        <!-- Rows will be dynamically populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Tab - ALL TABLES IN ONE ROW -->
+                <div class="tab-pane fade" id="tabResults" role="tabpanel" aria-labelledby="btnTabResult">
+                    <div class="row g-2">
+                        <!-- Actual Excel Data -->
+                        <div class="col">
+                            <div class="card h-100 results-table-container">
+                                <div class="card-header">
+                                    <h6 class="card-title">Actual Excel Data</h6>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-sm mb-0" id="tblActualExcelData">
+                                            <thead>
+                                                <tr>
+                                                    <th>Sl.No</th>
+                                                    <th>Container No</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tBodyActualExcelData">
+                                                <!-- Rows will be dynamically populated here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Duplicate in Excel -->
+                        <div class="col">
+                            <div class="card h-100 results-table-container">
+                                <div class="card-header">
+                                    <h6 class="card-title">Duplicate in Excel</h6>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-sm mb-0" id="tblDuplicateInExcelData">
+                                            <thead>
+                                                <tr>
+                                                    <th>Sl.No</th>
+                                                    <th>Container No</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tBodyDuplicateInExcelData">
+                                                <!-- Rows will be dynamically populated here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Container Not Found -->
+                        <div class="col">
+                            <div class="card h-100 results-table-container">
+                                <div class="card-header">
+                                    <h6 class="card-title">Container Not Found in Gate-IN</h6>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-sm mb-0" id="tblNotFoundData">
+                                            <thead>
+                                                <tr>
+                                                    <th>Sl.No</th>
+                                                    <th>Container No</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tBodyNotFoundData">
+                                                <!-- Rows will be dynamically populated here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Already Nominated -->
+                        <div class="col">
+                            <div class="card h-100 results-table-container">
+                                <div class="card-header">
+                                    <h6 class="card-title">Container Already Nominated</h6>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-sm mb-0" id="tblAlreadyNominatedData">
+                                            <thead>
+                                                <tr>
+                                                    <th>Sl.No</th>
+                                                    <th>Container No</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tBodyAlreadyNominatedData">
+                                                <!-- Rows will be dynamically populated here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- One Way Containers -->
+                        <div class="col">
+                            <div class="card h-100 results-table-container">
+                                <div class="card-header">
+                                    <h6 class="card-title">Container Marked as ONEWAY</h6>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-sm mb-0" id="tblOnewayData">
+                                            <thead>
+                                                <tr>
+                                                    <th>Sl.No</th>
+                                                    <th>Container No</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tBodyOnewayData">
+                                                <!-- Rows will be dynamically populated here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Analysis Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Vessel Info Form -->
+                            <div class="col-lg-6">
+                                <div class="row">
+                                    <div class="col-12 mb-4">
+                                        <h6 class="common-header mb-3">Nominate Vessel Info</h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="ITMSInput" data-id="txtRefOrCRO" data-class="allowAlphanumeric" data-placeholder="Ref#CRO#" data-type="text" data-mandatory="true" data-maxlength="100"></div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="ITMSInput" data-id="ddlDestination" data-type="text" data-class="" data-placeholder="Select Destination" data-mandatory="true" data-autocomplete="true"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <h6 class="common-header mb-3">Nominate Add Info</h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="ITMSInput" data-id="ddlVessel" data-type="text" data-class="" data-placeholder="Select Vessel" data-mandatory="true" data-autocomplete="true"></div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="ITMSInput" data-id="txtVoyage" data-class="allowAlphanumeric" data-placeholder="Voyage" data-type="text" data-mandatory="true" data-maxlength="100"></div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="ITMSInput" data-id="txtETA" data-type="date" data-class="" data-placeholder="ETA" data-autocomplete="true"></div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="ITMSInput" data-id="txtTerminal" data-class="allowAlphanumeric" data-placeholder="Terminal" data-type="text" data-mandatory="true" data-maxlength="100"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Analysis Report -->
+                            <div class="col-lg-6">
+                                <h6 class="common-header mb-3">Analysis Report</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="analysis-field-container">
+                                            <div class="analysis-input-group">
+                                                <input type="text" class="form-control analysisfield-grey" value="Total in Excel" readonly>
+                                                <input type="text" class="form-control analysisfield-green lblTotalRecords" value="0" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="analysis-field-container">
+                                            <div class="analysis-input-group">
+                                                <input type="text" class="form-control analysisfield-grey" value="Ready for Nominate" readonly>
+                                                <input type="text" class="form-control analysisfield-green lblReadyForNominate" value="0" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="analysis-field-container">
+                                            <div class="analysis-input-group">
+                                                <input type="text" class="form-control analysisfield-grey" value="One Way" readonly>
+                                                <input type="text" class="form-control analysisfield-red lblOneway" value="0" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="analysis-field-container">
+                                            <div class="analysis-input-group">
+                                                <input type="text" class="form-control analysisfield-grey" value="Nominated" readonly>
+                                                <input type="text" class="form-control analysisfield-red lblNominated" value="0" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="analysis-field-container">
+                                            <div class="analysis-input-group">
+                                                <input type="text" class="form-control analysisfield-grey" value="Duplicate" readonly>
+                                                <input type="text" class="form-control analysisfield-red lblDuplicate" value="0" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="analysis-field-container">
+                                            <div class="analysis-input-group">
+                                                <input type="text" class="form-control analysisfield-grey" value="Not Found" readonly>
+                                                <input type="text" class="form-control analysisfield-red lblNotFound" value="0" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Action Buttons -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <button class="btn itms-primarybtn-outline" id="btnClear">Clear</button>
+                                            <button class="btn btn-primary itms-primarybtn" id="btnSubmit">Save</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload File Modal -->
+<div class="modal fade" id="modalFileUpload" tabindex="-1" aria-labelledby="lblUploadFileModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4">
+            <div class="modal-header border-0" style="background-color: #ffffff29; color: black !important; padding: 31px 31px 4px !important;">
+                <h5 class="modal-title" id="lblUploadFileModal">Upload file</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body text-center" id="modalFileUploadBody" style="padding: 27px;">
+                <!-- Upload UI -->
+                <div class="upload-section" id="divDragAndDrop">
+                    <div class="border border-2 border-dashed p-4 rounded-3" style="min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px dotted #A3AED0; background-color: #BEC6E21A;">
+                        <div class="mb-3">
+                            <i class="bi bi-upload" style="font-size: 2rem;"></i>
+                        </div>
+                        <p class="mb-3" style="color: #848A9F; padding: 12px; font-size: 15px;">Drag & Drop or Choose file to upload</p>
+                        <button class="btn btn-success" id="btnBrowseFile">Browse</button>
+                        <input type="file" id="inputExcelFile" accept=".xlsx,.xls" hidden />
+                    </div>
+                    <p class="mt-3 text-muted small">Note: <span class="text-dark">Cut & Paste from EXCEL (Only Container Number, Size and BL# in Correct Order)</span>*</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/ShuttleBackload/multinominate.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        var apiBaseUrl = '@apiBaseUrl';
+        var ITMSMastersApi = '@ITMSMastersApi';
+        var gblProjectId = getCookie('projectId');
+        var isLoggedIn = getCookie('isLoggedIn');
+        var jwtToken = getCookie('jwtToken');
+    </script>
+}
